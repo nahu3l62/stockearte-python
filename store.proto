@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package com.unla.stockearte;
+
+option java_multiple_files = true;
+option java_package = "com.unla.stockearte";
+option java_outer_classname = "StoreServiceProto";
+
+service StoreService {
+  rpc CreateStore (CreateStoreRequest) returns (StoreResponse);
+  rpc EditStore (EditStoreRequest) returns (StoreResponse);
+  rpc GetStores (GetStoresRequest) returns (GetStoresResponse);
+  rpc GetStore (GetStoreRequest) returns (GetStoreResponse);
+}
+
+message CreateStoreRequest {
+  string code = 1;
+  string address = 2;
+  string city = 3;
+  string province = 4;
+  bool enabled = 5;
+}
+message EditStoreRequest {
+  int32 storeId = 1;
+  string code = 2;
+  string address = 3;
+  string city = 4;
+  string province = 5;
+  string enabled = 6;
+  repeated int32 usersId = 7;
+  repeated int32 productsId = 8;
+}
+message GetStoresRequest {
+  string code = 1;
+  string enabled = 2;
+}
+message StoreSummary {
+  int32 storeId = 1;
+  string code = 2;
+  string address = 3;
+  string city = 4;
+  string province = 5;
+  bool enabled = 6;
+}
+message GetStoresResponse {
+  repeated StoreSummary stores = 1;
+}
+message StoreResponse{
+  bool success = 1;
+}
+message GetStoreRequest {
+  int32 storeId = 1;
+}
+message GetStoreResponse {
+  StoreSummary store = 1;
+}

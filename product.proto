@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package com.unla.stockearte;
+
+option java_multiple_files = true;
+option java_package = "com.unla.stockearte";
+option java_outer_classname = "ProductServiceProto";
+
+service ProductService {
+    rpc CreateProduct(Product) returns (CreateProductResponse);
+    rpc EditProduct(Product) returns (EditProductResponse);
+    rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+    rpc FilterProduct(FilterProductRequest) returns (FilterProductResponse);
+    rpc GetDetailProduct(GetDetailProductRequest) returns (GetDetailProductResponse);
+}
+
+message Product {
+    uint64 id = 1;
+    string nombre = 2;
+    string talle = 3;
+    string foto = 4;        
+    string color = 5;
+    int32 stock = 6;
+    repeated uint64 idTienda = 7;
+}
+
+message CreateProductResponse {
+    bool success = 1;
+}
+
+message EditProductResponse {
+    bool success = 1;
+}
+
+message DeleteProductResponse {
+    bool success = 1;
+}
+
+message DeleteProductRequest {
+    int32 id = 1; 
+}
+
+message FilterProductRequest{
+    string nombre = 1;
+    string codigo_unico = 2;
+    string talle = 3;
+    string color = 4;
+    bool habilitado = 5;
+} 
+
+message FilterProductResponse{
+    repeated Product product = 1;
+}
+
+message GetProductRequest{
+    string tipo_usuario = 1;
+    string idTienda = 2;
+}
+
+message GetProductResponse{
+    repeated Product product = 1;
+}
+
+message GetDetailProductRequest{
+    uint64 id = 1;
+    string tipo_usuario = 2;
+    int32 stock = 3;
+    string nombre = 4;
+    string talle = 5;
+    bytes foto = 6;           
+    string color = 7;
+}
+
+message GetDetailProductResponse{
+    Product product = 1;
+}

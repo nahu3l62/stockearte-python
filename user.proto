@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package com.unla.stockearte;
+
+option java_multiple_files = true;
+option java_package = "com.unla.stockearte";
+option java_outer_classname = "UserServiceProto";
+
+service UserService {
+  rpc CreateUser (CreateUserRequest) returns (UserResponse);
+  rpc AuthenticateUser (AuthenticateUserRequest) returns (UserResponse);
+  rpc AsignUserToStore (AsignUserToStoreRequest) returns (UserResponse);
+  rpc EditUser (EditUserRequest) returns (UserResponse);
+  rpc GetUsers (GetUsersRequest) returns (GetUsersResponse);
+  rpc GetUser (GetUserRequest) returns (GetUserResponse);
+}
+message CreateUserRequest {
+  string username = 1;
+  string password = 2;
+  string firstName = 3;
+  string lastName = 4;
+  bool enabled = 5;
+  int32 storeId = 6;
+}
+message AuthenticateUserRequest {
+  string username = 1;
+  string password = 2;
+}
+message AsignUserToStoreRequest {
+  int32 userId = 1;
+  int32 storeId = 2;
+}
+message EditUserRequest {
+  int32 userId = 1;
+  string username = 2;
+  string password = 3;
+  string firstName = 4;
+  string lastName = 5;
+  string enabled = 6;
+  int32 storeId = 7;
+}
+message GetUsersRequest {
+  string username = 1;
+  string storeCode = 2;
+}
+message UserSummary {
+  string userId = 1;
+  string username = 2;
+  string password = 3;
+  string firstName = 4;
+  string lastName = 5;
+  bool enabled = 6;
+  int32 storeId = 7;
+  string storeCode= 8;
+}
+message GetUsersResponse {
+  repeated UserSummary users = 1;
+}
+message UserResponse{
+  bool success = 1;
+}
+message GetUserRequest {
+  int32 userId = 1;
+  string username = 2;
+}
+message GetUserResponse {
+  UserSummary user = 1;
+}
