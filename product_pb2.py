@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rproduct.proto\x12\x13\x63om.unla.stockearte\"r\n\x07Product\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x0e\n\x06nombre\x18\x02 \x01(\t\x12\r\n\x05talle\x18\x03 \x01(\t\x12\x0c\n\x04\x66oto\x18\x04 \x01(\t\x12\r\n\x05\x63olor\x18\x05 \x01(\t\x12\r\n\x05stock\x18\x06 \x01(\x05\x12\x10\n\x08idTienda\x18\x07 \x03(\x04\"(\n\x15\x43reateProductResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"&\n\x13\x45\x64itProductResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"(\n\x15\x44\x65leteProductResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\"\n\x14\x44\x65leteProductRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"n\n\x14\x46ilterProductRequest\x12\x0e\n\x06nombre\x18\x01 \x01(\t\x12\x14\n\x0c\x63odigo_unico\x18\x02 \x01(\t\x12\r\n\x05talle\x18\x03 \x01(\t\x12\r\n\x05\x63olor\x18\x04 \x01(\t\x12\x12\n\nhabilitado\x18\x05 \x01(\x08\"F\n\x15\x46ilterProductResponse\x12-\n\x07product\x18\x01 \x03(\x0b\x32\x1c.com.unla.stockearte.Product\";\n\x11GetProductRequest\x12\x14\n\x0ctipo_usuario\x18\x01 \x01(\t\x12\x10\n\x08idTienda\x18\x02 \x01(\t\"C\n\x12GetProductResponse\x12-\n\x07product\x18\x01 \x03(\x0b\x32\x1c.com.unla.stockearte.Product\"\x86\x01\n\x17GetDetailProductRequest\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x14\n\x0ctipo_usuario\x18\x02 \x01(\t\x12\r\n\x05stock\x18\x03 \x01(\x05\x12\x0e\n\x06nombre\x18\x04 \x01(\t\x12\r\n\x05talle\x18\x05 \x01(\t\x12\x0c\n\x04\x66oto\x18\x06 \x01(\x0c\x12\r\n\x05\x63olor\x18\x07 \x01(\t\"I\n\x18GetDetailProductResponse\x12-\n\x07product\x18\x01 \x01(\x0b\x32\x1c.com.unla.stockearte.Product2\x83\x04\n\x0eProductService\x12Y\n\rCreateProduct\x12\x1c.com.unla.stockearte.Product\x1a*.com.unla.stockearte.CreateProductResponse\x12U\n\x0b\x45\x64itProduct\x12\x1c.com.unla.stockearte.Product\x1a(.com.unla.stockearte.EditProductResponse\x12\x66\n\rDeleteProduct\x12).com.unla.stockearte.DeleteProductRequest\x1a*.com.unla.stockearte.DeleteProductResponse\x12\x66\n\rFilterProduct\x12).com.unla.stockearte.FilterProductRequest\x1a*.com.unla.stockearte.FilterProductResponse\x12o\n\x10GetDetailProduct\x12,.com.unla.stockearte.GetDetailProductRequest\x1a-.com.unla.stockearte.GetDetailProductResponseB,\n\x13\x63om.unla.stockearteB\x13ProductServiceProtoP\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rproduct.proto\x12\x13\x63om.unla.stockearte\"\x82\x01\n\x07Product\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x0e\n\x06nombre\x18\x02 \x01(\t\x12\r\n\x05talle\x18\x03 \x01(\t\x12\x0c\n\x04\x66oto\x18\x04 \x01(\t\x12\r\n\x05\x63olor\x18\x05 \x01(\t\x12\r\n\x05stock\x18\x06 \x01(\x05\x12\x0e\n\x06\x63odigo\x18\x07 \x01(\t\x12\x10\n\x08idTienda\x18\x08 \x03(\x04\"(\n\x15\x43reateProductResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"&\n\x13\x45\x64itProductResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"(\n\x15\x44\x65leteProductResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\"\n\x14\x44\x65leteProductRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"n\n\x14\x46ilterProductRequest\x12\x0e\n\x06nombre\x18\x01 \x01(\t\x12\x14\n\x0c\x63odigo_unico\x18\x02 \x01(\t\x12\r\n\x05talle\x18\x03 \x01(\t\x12\r\n\x05\x63olor\x18\x04 \x01(\t\x12\x12\n\nhabilitado\x18\x05 \x01(\x08\"F\n\x15\x46ilterProductResponse\x12-\n\x07product\x18\x01 \x03(\x0b\x32\x1c.com.unla.stockearte.Product\";\n\x11GetProductRequest\x12\x14\n\x0ctipo_usuario\x18\x01 \x01(\t\x12\x10\n\x08idTienda\x18\x02 \x01(\t\"C\n\x12GetProductResponse\x12-\n\x07product\x18\x01 \x03(\x0b\x32\x1c.com.unla.stockearte.Product\"\x86\x01\n\x17GetDetailProductRequest\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x14\n\x0ctipo_usuario\x18\x02 \x01(\t\x12\r\n\x05stock\x18\x03 \x01(\x05\x12\x0e\n\x06nombre\x18\x04 \x01(\t\x12\r\n\x05talle\x18\x05 \x01(\t\x12\x0c\n\x04\x66oto\x18\x06 \x01(\x0c\x12\r\n\x05\x63olor\x18\x07 \x01(\t\"I\n\x18GetDetailProductResponse\x12-\n\x07product\x18\x01 \x01(\x0b\x32\x1c.com.unla.stockearte.Product2\x83\x04\n\x0eProductService\x12Y\n\rCreateProduct\x12\x1c.com.unla.stockearte.Product\x1a*.com.unla.stockearte.CreateProductResponse\x12U\n\x0b\x45\x64itProduct\x12\x1c.com.unla.stockearte.Product\x1a(.com.unla.stockearte.EditProductResponse\x12\x66\n\rDeleteProduct\x12).com.unla.stockearte.DeleteProductRequest\x1a*.com.unla.stockearte.DeleteProductResponse\x12\x66\n\rFilterProduct\x12).com.unla.stockearte.FilterProductRequest\x1a*.com.unla.stockearte.FilterProductResponse\x12o\n\x10GetDetailProduct\x12,.com.unla.stockearte.GetDetailProductRequest\x1a-.com.unla.stockearte.GetDetailProductResponseB,\n\x13\x63om.unla.stockearteB\x13ProductServiceProtoP\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,28 +32,28 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'product_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'\n\023com.unla.stockearteB\023ProductServiceProtoP\001'
-  _globals['_PRODUCT']._serialized_start=38
-  _globals['_PRODUCT']._serialized_end=152
-  _globals['_CREATEPRODUCTRESPONSE']._serialized_start=154
-  _globals['_CREATEPRODUCTRESPONSE']._serialized_end=194
-  _globals['_EDITPRODUCTRESPONSE']._serialized_start=196
-  _globals['_EDITPRODUCTRESPONSE']._serialized_end=234
-  _globals['_DELETEPRODUCTRESPONSE']._serialized_start=236
-  _globals['_DELETEPRODUCTRESPONSE']._serialized_end=276
-  _globals['_DELETEPRODUCTREQUEST']._serialized_start=278
-  _globals['_DELETEPRODUCTREQUEST']._serialized_end=312
-  _globals['_FILTERPRODUCTREQUEST']._serialized_start=314
-  _globals['_FILTERPRODUCTREQUEST']._serialized_end=424
-  _globals['_FILTERPRODUCTRESPONSE']._serialized_start=426
-  _globals['_FILTERPRODUCTRESPONSE']._serialized_end=496
-  _globals['_GETPRODUCTREQUEST']._serialized_start=498
-  _globals['_GETPRODUCTREQUEST']._serialized_end=557
-  _globals['_GETPRODUCTRESPONSE']._serialized_start=559
-  _globals['_GETPRODUCTRESPONSE']._serialized_end=626
-  _globals['_GETDETAILPRODUCTREQUEST']._serialized_start=629
-  _globals['_GETDETAILPRODUCTREQUEST']._serialized_end=763
-  _globals['_GETDETAILPRODUCTRESPONSE']._serialized_start=765
-  _globals['_GETDETAILPRODUCTRESPONSE']._serialized_end=838
-  _globals['_PRODUCTSERVICE']._serialized_start=841
-  _globals['_PRODUCTSERVICE']._serialized_end=1356
+  _globals['_PRODUCT']._serialized_start=39
+  _globals['_PRODUCT']._serialized_end=169
+  _globals['_CREATEPRODUCTRESPONSE']._serialized_start=171
+  _globals['_CREATEPRODUCTRESPONSE']._serialized_end=211
+  _globals['_EDITPRODUCTRESPONSE']._serialized_start=213
+  _globals['_EDITPRODUCTRESPONSE']._serialized_end=251
+  _globals['_DELETEPRODUCTRESPONSE']._serialized_start=253
+  _globals['_DELETEPRODUCTRESPONSE']._serialized_end=293
+  _globals['_DELETEPRODUCTREQUEST']._serialized_start=295
+  _globals['_DELETEPRODUCTREQUEST']._serialized_end=329
+  _globals['_FILTERPRODUCTREQUEST']._serialized_start=331
+  _globals['_FILTERPRODUCTREQUEST']._serialized_end=441
+  _globals['_FILTERPRODUCTRESPONSE']._serialized_start=443
+  _globals['_FILTERPRODUCTRESPONSE']._serialized_end=513
+  _globals['_GETPRODUCTREQUEST']._serialized_start=515
+  _globals['_GETPRODUCTREQUEST']._serialized_end=574
+  _globals['_GETPRODUCTRESPONSE']._serialized_start=576
+  _globals['_GETPRODUCTRESPONSE']._serialized_end=643
+  _globals['_GETDETAILPRODUCTREQUEST']._serialized_start=646
+  _globals['_GETDETAILPRODUCTREQUEST']._serialized_end=780
+  _globals['_GETDETAILPRODUCTRESPONSE']._serialized_start=782
+  _globals['_GETDETAILPRODUCTRESPONSE']._serialized_end=855
+  _globals['_PRODUCTSERVICE']._serialized_start=858
+  _globals['_PRODUCTSERVICE']._serialized_end=1373
 # @@protoc_insertion_point(module_scope)

@@ -21,7 +21,8 @@ message Product {
     string foto = 4;        
     string color = 5;
     int32 stock = 6;
-    repeated uint64 idTienda = 7;
+    string codigo = 7;
+    repeated uint64 idTienda = 8;
 }
 
 message CreateProductResponse {

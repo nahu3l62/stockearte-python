@@ -107,7 +107,7 @@ def filter_product():
         codigo_unico=data.get('codigo_unico', ''),
         talle=data.get('talle', ''),
         color=data.get('color', ''),
-        habilitado=data.get('habilitado','')
+        habilitado=data.get('habilitado', '')
     )
 
     # Establece la conexión con el servidor gRPC
@@ -124,7 +124,8 @@ def filter_product():
             'talle': product.talle,
             'foto': product.foto,
             'color': product.color,
-            'stock': product.stock
+            'stock': product.stock,
+            'codigo': product.codigo,
         } for product in response.product]
 
         return jsonify({'products': products})
@@ -183,7 +184,7 @@ def create_store():
         address=data['address'],
         city=data['city'],
         province=data['province'],
-        enabled=data['enabled'] 
+        enabled=data['enabled']
     )
 
     with grpc.insecure_channel('localhost:6565') as channel:
