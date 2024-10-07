@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package com.unla.stockearte;
+
+option java_multiple_files = true;
+option java_package = "com.unla.stockearte";
+option java_outer_classname = "PurchaseOrderServiceProto";
+
+// Definición del mensaje PurchaseOrder
+message PurchaseOrder {
+    uint64 id = 1;
+    repeated OrderDetail orders = 2;
+    string estado = 3;
+    string observaciones = 4;
+    string orden_despacho = 5;
+    google.protobuf.Timestamp fechaSolicitud = 6; 
+    google.protobuf.Timestamp fechaRecepcion = 7; 
+    int32 idTienda = 8;
+}
+
+message OrderDetail {
+    string codigo = 1;
+    string color = 2;
+    string talle = 3;        
+    int32 cantidad = 4;
+}
+
+message CreatePurchaseOrderResponse {
+    bool success = 1;
+}
+
+message EditPurchaseOrderResponse {
+    bool success = 1;
+}
+
+message DeletePurchaseOrderResponse {
+    bool success = 1;
+}
+
+message DeletePurchaseOrderRequest {
+    int32 id = 1; 
+}
+
+message GetPurchaseOrderByIdRequest{
+    int32 id = 1; 
+}
+
+message GetPurchaseOrderByIdResponse{
+    repeated PurchaseOrder purchaseOrders = 1;
+}
+
+// Servicio para manejar PurchaseOrders
+service PurchaseOrderService {
+    rpc CreatePurchaseOrder(PurchaseOrder) returns (CreatePurchaseOrderResponse);
+    rpc EditPurchaseOrder(PurchaseOrder) returns (EditPurchaseOrderResponse);
+    rpc DeletePurchaseOrder(DeletePurchaseOrderRequest) returns (DeletePurchaseOrderResponse);
+    rpc ListPurchaseOrdersById(GetPurchaseOrderByIdRequest) returns (GetPurchaseOrderByIdResponse);
+}

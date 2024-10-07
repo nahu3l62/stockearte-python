@@ -9,9 +9,121 @@ import base64
 from google.protobuf.json_format import MessageToDict
 import user_pb2
 import user_pb2_grpc
+import purchase_order_pb2
+import purchase_order_pb2_grpc
 
 app = Flask(__name__)
 CORS(app)
+
+
+@app.route('/purchase/create', methods=['POST'])
+def create_purchase():
+    data = request.json  # Espera un cuerpo en formato JSON
+
+    orders = data.get('orders', [])
+    observaciones = data['observaciones']
+    orden_despacho = data['orden_despacho']
+    idTienda = data['idTienda']
+
+    # Establece la conexión con el servidor gRPC
+    with grpc.insecure_channel('localhost:6565') as channel:
+        stub = purchase_order_pb2_grpc.PurchaseOrderServiceStub(channel)
+
+        # Crea la solicitud
+        request_data = purchase_order_pb2.PurchaseOrder(
+            orders=orders,
+            observaciones=observaciones,
+            orden_despacho=orden_despacho,
+            idTienda=idTienda
+        )
+
+        # Llama al método gRPC
+        response = stub.CreatePurchaseOrder(request_data)
+
+        # Retorna la respuesta del servidor gRPC
+        return jsonify({'success': response.success})
+
+
+@app.route('/purchase/edit', methods=['POST'])
+def edit_purchase():
+    data = request.json  # Espera un cuerpo en formato JSON
+
+    id = data['id']
+    estado = data['estado']
+    observaciones = data['observaciones']
+    orden_despacho = data['orden_despacho']
+    idTienda = data['idTienda']
+
+    # Establece la conexión con el servidor gRPC
+    with grpc.insecure_channel('localhost:6565') as channel:
+        stub = purchase_order_pb2_grpc.PurchaseOrderServiceStub(channel)
+
+        # Crea la solicitud
+        request_data = purchase_order_pb2.PurchaseOrder(
+            id=id,
+            estado=estado,
+            observaciones=observaciones,
+            orden_despacho=orden_despacho,
+            idTienda=idTienda
+        )
+
+        # Llama al método gRPC
+        response = stub.EditPurchaseOrder(request_data)
+
+        # Retorna la respuesta del servidor gRPC
+        return jsonify({'success': response.success})
+
+
+@app.route('/purchase/delete', methods=['DELETE'])
+def delete_purchase():
+    data = request.json  # Espera un cuerpo en formato JSON
+
+    id = data['id']
+
+    # Establece la conexión con el servidor gRPC
+    with grpc.insecure_channel('localhost:6565') as channel:
+        stub = purchase_order_pb2_grpc.PurchaseOrderServiceStub(channel)
+
+        # Crea la solicitud
+        request_data = purchase_order_pb2.DeletePurchaseOrderRequest(
+            id=id
+        )
+
+        # Llama al método gRPC
+        response = stub.DeletePurchaseOrder(request_data)
+
+        # Retorna la respuesta del servidor gRPC
+        return jsonify({'success': response.success})
+
+
+@app.route('/purchase/findById', methods=['POST'])
+def findById_purchase():
+    data = request.json  # Espera un cuerpo en formato JSON
+
+    id = data['id']
+
+    # Establece la conexión con el servidor gRPC
+    with grpc.insecure_channel('localhost:6565') as channel:
+        stub = purchase_order_pb2_grpc.PurchaseOrderServiceStub(channel)
+
+        # Crea la solicitud
+        request_data = purchase_order_pb2.GetPurchaseOrderByIdRequest(
+            id=id
+        )
+
+        # Llama al método gRPC
+        response = stub.ListPurchaseOrdersById(request_data)
+
+        # Retorna la respuesta del servidor gRPC
+        return jsonify({'success': response.success})
+
+
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
 
 
 @app.route('/product/create', methods=['POST'])
