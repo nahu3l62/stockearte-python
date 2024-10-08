@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import store_pb2 as store__pb2
+import stock_pb2 as stock__pb2
 
 GRPC_GENERATED_VERSION = '1.66.2'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in store_pb2_grpc.py depends on'
+        + f' but the generated code in stock_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class StoreServiceStub(object):
+class StockServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,91 +34,91 @@ class StoreServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.CreateStore = channel.unary_unary(
-                '/com.unla.stockearte.StoreService/CreateStore',
-                request_serializer=store__pb2.CreateStoreRequest.SerializeToString,
-                response_deserializer=store__pb2.StoreResponse.FromString,
+        self.CreateStock = channel.unary_unary(
+                '/com.unla.stockearte.StockService/CreateStock',
+                request_serializer=stock__pb2.CreateStockRequest.SerializeToString,
+                response_deserializer=stock__pb2.StockResponse.FromString,
                 _registered_method=True)
-        self.EditStore = channel.unary_unary(
-                '/com.unla.stockearte.StoreService/EditStore',
-                request_serializer=store__pb2.EditStoreRequest.SerializeToString,
-                response_deserializer=store__pb2.StoreResponse.FromString,
+        self.EditStock = channel.unary_unary(
+                '/com.unla.stockearte.StockService/EditStock',
+                request_serializer=stock__pb2.EditStockRequest.SerializeToString,
+                response_deserializer=stock__pb2.StockResponse.FromString,
                 _registered_method=True)
-        self.GetStores = channel.unary_unary(
-                '/com.unla.stockearte.StoreService/GetStores',
-                request_serializer=store__pb2.GetStoresRequest.SerializeToString,
-                response_deserializer=store__pb2.GetStoresResponse.FromString,
+        self.GetStocks = channel.unary_unary(
+                '/com.unla.stockearte.StockService/GetStocks',
+                request_serializer=stock__pb2.GetStocksRequest.SerializeToString,
+                response_deserializer=stock__pb2.GetStocksResponse.FromString,
                 _registered_method=True)
-        self.GetStore = channel.unary_unary(
-                '/com.unla.stockearte.StoreService/GetStore',
-                request_serializer=store__pb2.GetStoreRequest.SerializeToString,
-                response_deserializer=store__pb2.GetStoreResponse.FromString,
+        self.GetStock = channel.unary_unary(
+                '/com.unla.stockearte.StockService/GetStock',
+                request_serializer=stock__pb2.GetStockRequest.SerializeToString,
+                response_deserializer=stock__pb2.GetStockResponse.FromString,
                 _registered_method=True)
 
 
-class StoreServiceServicer(object):
+class StockServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def CreateStore(self, request, context):
+    def CreateStock(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def EditStore(self, request, context):
+    def EditStock(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetStores(self, request, context):
+    def GetStocks(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetStore(self, request, context):
+    def GetStock(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_StoreServiceServicer_to_server(servicer, server):
+def add_StockServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'CreateStore': grpc.unary_unary_rpc_method_handler(
-                    servicer.CreateStore,
-                    request_deserializer=store__pb2.CreateStoreRequest.FromString,
-                    response_serializer=store__pb2.StoreResponse.SerializeToString,
+            'CreateStock': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateStock,
+                    request_deserializer=stock__pb2.CreateStockRequest.FromString,
+                    response_serializer=stock__pb2.StockResponse.SerializeToString,
             ),
-            'EditStore': grpc.unary_unary_rpc_method_handler(
-                    servicer.EditStore,
-                    request_deserializer=store__pb2.EditStoreRequest.FromString,
-                    response_serializer=store__pb2.StoreResponse.SerializeToString,
+            'EditStock': grpc.unary_unary_rpc_method_handler(
+                    servicer.EditStock,
+                    request_deserializer=stock__pb2.EditStockRequest.FromString,
+                    response_serializer=stock__pb2.StockResponse.SerializeToString,
             ),
-            'GetStores': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetStores,
-                    request_deserializer=store__pb2.GetStoresRequest.FromString,
-                    response_serializer=store__pb2.GetStoresResponse.SerializeToString,
+            'GetStocks': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetStocks,
+                    request_deserializer=stock__pb2.GetStocksRequest.FromString,
+                    response_serializer=stock__pb2.GetStocksResponse.SerializeToString,
             ),
-            'GetStore': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetStore,
-                    request_deserializer=store__pb2.GetStoreRequest.FromString,
-                    response_serializer=store__pb2.GetStoreResponse.SerializeToString,
+            'GetStock': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetStock,
+                    request_deserializer=stock__pb2.GetStockRequest.FromString,
+                    response_serializer=stock__pb2.GetStockResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'com.unla.stockearte.StoreService', rpc_method_handlers)
+            'com.unla.stockearte.StockService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('com.unla.stockearte.StoreService', rpc_method_handlers)
+    server.add_registered_method_handlers('com.unla.stockearte.StockService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class StoreService(object):
+class StockService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def CreateStore(request,
+    def CreateStock(request,
             target,
             options=(),
             channel_credentials=None,
@@ -131,9 +131,9 @@ class StoreService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/com.unla.stockearte.StoreService/CreateStore',
-            store__pb2.CreateStoreRequest.SerializeToString,
-            store__pb2.StoreResponse.FromString,
+            '/com.unla.stockearte.StockService/CreateStock',
+            stock__pb2.CreateStockRequest.SerializeToString,
+            stock__pb2.StockResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -145,7 +145,7 @@ class StoreService(object):
             _registered_method=True)
 
     @staticmethod
-    def EditStore(request,
+    def EditStock(request,
             target,
             options=(),
             channel_credentials=None,
@@ -158,9 +158,9 @@ class StoreService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/com.unla.stockearte.StoreService/EditStore',
-            store__pb2.EditStoreRequest.SerializeToString,
-            store__pb2.StoreResponse.FromString,
+            '/com.unla.stockearte.StockService/EditStock',
+            stock__pb2.EditStockRequest.SerializeToString,
+            stock__pb2.StockResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -172,7 +172,7 @@ class StoreService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetStores(request,
+    def GetStocks(request,
             target,
             options=(),
             channel_credentials=None,
@@ -185,9 +185,9 @@ class StoreService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/com.unla.stockearte.StoreService/GetStores',
-            store__pb2.GetStoresRequest.SerializeToString,
-            store__pb2.GetStoresResponse.FromString,
+            '/com.unla.stockearte.StockService/GetStocks',
+            stock__pb2.GetStocksRequest.SerializeToString,
+            stock__pb2.GetStocksResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -199,7 +199,7 @@ class StoreService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetStore(request,
+    def GetStock(request,
             target,
             options=(),
             channel_credentials=None,
@@ -212,9 +212,9 @@ class StoreService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/com.unla.stockearte.StoreService/GetStore',
-            store__pb2.GetStoreRequest.SerializeToString,
-            store__pb2.GetStoreResponse.FromString,
+            '/com.unla.stockearte.StockService/GetStock',
+            stock__pb2.GetStockRequest.SerializeToString,
+            stock__pb2.GetStockResponse.FromString,
             options,
             channel_credentials,
             insecure,

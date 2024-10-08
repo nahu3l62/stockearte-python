@@ -3,6 +3,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import product_pb2
 import product_pb2_grpc
+import stock_pb2
+import stock_pb2_grpc
 import store_pb2
 import store_pb2_grpc
 import base64
@@ -12,7 +14,6 @@ import user_pb2_grpc
 
 app = Flask(__name__)
 CORS(app)
-
 
 @app.route('/product/create', methods=['POST'])
 def create_product():
@@ -47,14 +48,11 @@ def create_product():
         # Retorna la respuesta del servidor gRPC
         return jsonify({'success': response.success})
 
-
 @app.route('/product/edit', methods=['POST'])
 def edit_product():
-    data = request.json
+    data = request.json.get('requestBody')
     if not data or 'id' not in data or 'nombre' not in data:
         return jsonify({'error': 'Datos inválidos. Se requieren id y nombre.'}), 400
-
-    # Crea la solicitud
     request_data = product_pb2.Product(
         id=data['id'],
         nombre=data['nombre'],
@@ -62,19 +60,12 @@ def edit_product():
         foto=data.get('foto', ''),
         color=data.get('color', ''),
         stock=data.get('stock', 0),
-        idTienda=data.get('idTienda', [])
+        idTienda=list(map(int, data.get('idTienda', [])))
     )
-
-    # Establece la conexión con el servidor gRPC
     with grpc.insecure_channel('localhost:6565') as channel:
         stub = product_pb2_grpc.ProductServiceStub(channel)
-
-        # Llama al método gRPC
         response = stub.EditProduct(request_data)
-
-        # Retorna la respuesta del servidor gRPC
         return jsonify({'success': response.success})
-
 
 @app.route('/product/delete', methods=['DELETE'])
 def delete_product():
@@ -94,7 +85,6 @@ def delete_product():
         # Retorna la respuesta del servidor gRPC
         return jsonify({'success': response.success})
 
-
 @app.route('/product/filter', methods=['POST'])
 def filter_product():
     data = request.json
@@ -106,44 +96,32 @@ def filter_product():
         nombre=data.get('nombre', ''),
         codigo_unico=data.get('codigo_unico', ''),
         talle=data.get('talle', ''),
-        color=data.get('color', ''),
-        habilitado=data.get('habilitado','')
+        color=data.get('color', '')
     )
-
-    # Establece la conexión con el servidor gRPC
     with grpc.insecure_channel('localhost:6565') as channel:
         stub = product_pb2_grpc.ProductServiceStub(channel)
-
-        # Llama al método gRPC
         response = stub.FilterProduct(request_data)
 
-        # Retorna la respuesta del servidor gRPC
         products = [{
             'id': product.id,
             'nombre': product.nombre,
             'talle': product.talle,
             'foto': product.foto,
             'color': product.color,
-            'stock': product.stock
+            'stock': product.stock,
+            'codigo': product.codigo,
         } for product in response.product]
-
         return jsonify({'products': products})
-
 
 @app.route('/product/detail', methods=['POST'])
 def get_detail_product():
     data = request.json
-    if not data or 'id' not in data or 'tipo_usuario' not in data:
+    if not data or 'id' not in data: #or 'tipo_usuario' not in data:
         return jsonify({'error': 'Datos inválidos. Se requieren id y tipo_usuario.'}), 400
-
+    print(data)
+    product_id = int(data['id'])
     request_data = product_pb2.GetDetailProductRequest(
-        id=data['id'],
-        tipo_usuario=data['tipo_usuario'],
-        stock=data.get('stock', 0),
-        nombre=data.get('nombre', ''),
-        talle=data.get('talle', ''),
-        foto=data.get('foto', ''),
-        color=data.get('color', '')
+        id=product_id
     )
 
     with grpc.insecure_channel('localhost:6565') as channel:
@@ -154,23 +132,19 @@ def get_detail_product():
             return jsonify({'error': 'Producto no encontrado.'}), 404
 
         product = response.product
+        print(product)
         return jsonify({
             'id': product.id,
             'nombre': product.nombre,
             'talle': product.talle,
             'foto': product.foto,
             'color': product.color,
-            'stock': product.stock
+            'stock': product.stock,  # Only keep one 'stock'
+            'codigo': product.codigo,
+            'idTienda': list(product.idTienda)  # Convert RepeatedScalarContainer to a list
         })
 
-
-####################################################################################################
-####################################################################################################
-####################################################################################################
-####################################################################################################
-####################################################################################################
-####################################################################################################
-
+######################################## STORE ENDPOINTS ##############################################
 
 @app.route('/store/create', methods=['POST'])
 def create_store():
@@ -183,7 +157,7 @@ def create_store():
         address=data['address'],
         city=data['city'],
         province=data['province'],
-        enabled=data['enabled'] 
+        enabled=data['enabled']
     )
 
     with grpc.insecure_channel('localhost:6565') as channel:
@@ -191,29 +165,26 @@ def create_store():
         response = stub.CreateStore(request_data)
         return jsonify({'success': response.success})
 
-
 @app.route('/store/edit', methods=['POST'])
 def edit_store():
     data = request.json
     if not data or 'storeId' not in data or 'code' not in data:
         return jsonify({'error': 'Datos inválidos. Se requieren storeId y code.'}), 400
-
     request_data = store_pb2.EditStoreRequest(
         storeId=data['storeId'],
         code=data['code'],
         address=data.get('address', ''),
         city=data.get('city', ''),
         province=data.get('province', ''),
-        enabled=data.get('enabled', ''),
-        usersId=data.get('usersId', []),
-        productsId=data.get('productsId', [])
+        enabled=bool(int(data.get('enabled', '0'))),
+        usersId=list(map(int, data.get('usersId', []))),  # Convert to integer
+        productsId=list(map(int, data.get('productsId', [])))  # Convert to integer
     )
 
     with grpc.insecure_channel('localhost:6565') as channel:
         stub = store_pb2_grpc.StoreServiceStub(channel)
         response = stub.EditStore(request_data)
         return jsonify({'success': response.success})
-
 
 @app.route('/store/get_stores', methods=['POST'])
 def get_stores():
@@ -230,15 +201,15 @@ def get_stores():
         stores = [MessageToDict(store) for store in response.stores]
         return jsonify({'stores': stores})
 
-
 @app.route('/store/get_store', methods=['POST'])
 def get_store():
     data = request.json
     if not data or 'storeId' not in data:
         return jsonify({'error': 'Datos inválidos. Se requiere storeId.'}), 400
 
+    store_id = int(data['storeId'])
     request_data = store_pb2.GetStoreRequest(
-        storeId=data['storeId']
+        storeId=store_id
     )
 
     with grpc.insecure_channel('localhost:6565') as channel:
@@ -246,15 +217,77 @@ def get_store():
         response = stub.GetStore(request_data)
 
         store = MessageToDict(response.store)
+        print('Datos de la tienda devueltos desde gRPC:', store)
         return jsonify({'store': store})
 
-####################################################################################################
-####################################################################################################
-####################################################################################################
-####################################################################################################
-####################################################################################################
-####################################################################################################
+######################################## STOCK ENDPOINTS ##############################################
 
+@app.route('/stock/create', methods=['POST'])
+def create_stock():
+    data = request.json
+    if not data or 'storeId' not in data or 'productId' not in data or 'quantity' not in data:
+        return jsonify({'error': 'Datos inválidos. Se requieren storeId, productId y quantity.'}), 400
+
+    request_data = stock_pb2.CreateStockRequest(
+        storeId=data['storeId'],
+        productId=data['productId'],
+        quantity=data['quantity']
+    )
+
+    with grpc.insecure_channel('localhost:6565') as channel:
+        stub = stock_pb2_grpc.StockServiceStub(channel)
+        response = stub.CreateStock(request_data)
+        return jsonify({'success': response.success})
+
+@app.route('/stock/edit', methods=['POST'])
+def edit_stock():
+    data = request.json
+    if not data or 'id' not in data or 'storeId' not in data or 'productId' not in data:
+        return jsonify({'error': 'Datos inválidos. Se requieren id, storeId y productId.'}), 400
+
+    request_data = stock_pb2.EditStockRequest(
+        id=data['id'],
+        storeId=data['storeId'],
+        productId=data['productId'],
+        quantity=data['quantity']
+    )
+
+    with grpc.insecure_channel('localhost:6565') as channel:
+        stub = stock_pb2_grpc.StockServiceStub(channel)
+        response = stub.EditStock(request_data)
+        return jsonify({'success': response.success})
+
+@app.route('/stock/get_stocks', methods=['POST'])
+def get_stocks():
+    request_data = stock_pb2.GetStocksRequest()
+    with grpc.insecure_channel('localhost:6565') as channel:
+        stub = stock_pb2_grpc.StockServiceStub(channel)
+        response = stub.GetStocks(request_data)
+        stocks = []
+        for stock in response.stocks:
+            stock_dict = MessageToDict(stock)
+            if 'quantity' not in stock_dict:
+                stock_dict['quantity'] = 0
+            stocks.append(stock_dict)
+        return jsonify({'stocks': stocks})
+
+@app.route('/stock/get_stock', methods=['POST'])
+def get_stock():
+    data = request.json
+    if not data or 'id' not in data:
+        return jsonify({'error': 'Datos inválidos. Se requiere id.'}), 400
+    request_data = stock_pb2.GetStockRequest(
+        id=int(data['id'])
+    )
+    with grpc.insecure_channel('localhost:6565') as channel:
+        stub = stock_pb2_grpc.StockServiceStub(channel)
+        response = stub.GetStock(request_data)
+        stock = MessageToDict(response.stock)
+        if 'quantity' not in stock:
+            stock['quantity'] = 0
+        return jsonify({'stock': stock})
+
+######################################## USER ENDPOINTS ##############################################
 
 @app.route('/user/create', methods=['POST'])
 def create_user():
@@ -276,7 +309,6 @@ def create_user():
         response = stub.CreateUser(request_data)
         return jsonify({'success': response.success})
 
-
 @app.route('/user/authenticate', methods=['POST'])
 def authenticate_user():
     data = request.json
@@ -292,7 +324,6 @@ def authenticate_user():
         stub = user_pb2_grpc.UserServiceStub(channel)
         response = stub.AuthenticateUser(request_data)
         return jsonify({'success': response.success})
-
 
 @app.route('/user/asignUserToStore', methods=['POST'])
 def asign_user_to_store():
@@ -310,28 +341,26 @@ def asign_user_to_store():
         response = stub.AsignUserToStore(request_data)
         return jsonify({'success': response.success})
 
-
 @app.route('/user/edit', methods=['POST'])
 def edit_user():
     data = request.json
     if not data or 'userId' not in data or 'username' not in data:
         return jsonify({'error': 'Datos inválidos. Se requieren userId y username.'}), 400
-
+    print(data)
     request_data = user_pb2.EditUserRequest(
-        userId=data['userId'],
+        userId=int(data['userId']),
         username=data['username'],
         password=data.get('password', ''),
         firstName=data.get('firstName', ''),
         lastName=data.get('lastName', ''),
-        enabled=data.get('enabled', ''),
-        storeId=data.get('storeId', 0)
+        enabled=bool(int(data.get('enabled', '0'))),
+        storeId=int(data.get('storeId', 0))
     )
 
     with grpc.insecure_channel('localhost:6565') as channel:
         stub = user_pb2_grpc.UserServiceStub(channel)
         response = stub.EditUser(request_data)
         return jsonify({'success': response.success})
-
 
 @app.route('/user/getUsers', methods=['POST'])
 def get_users():
@@ -347,7 +376,6 @@ def get_users():
 
         users = [MessageToDict(user) for user in response.users]
         return jsonify({'users': users})
-
 
 @app.route('/user/getUser', methods=['POST'])
 def get_user():
@@ -366,7 +394,6 @@ def get_user():
 
         user = MessageToDict(response.user)
         return jsonify({'user': user})
-
 
 if __name__ == '__main__':
     app.run(port=5000)
