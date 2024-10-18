@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package com.unla.stockearte;
+
+option java_multiple_files = true;
+option java_package = "com.unla.stockearte";
+option java_outer_classname = "StockServiceProto";
+
+service StockService {
+  rpc CreateStock (CreateStockRequest) returns (StockResponse);
+  rpc EditStock (EditStockRequest) returns (StockResponse);
+  rpc GetStocks (GetStocksRequest) returns (GetStocksResponse);
+  rpc GetStock (GetStockRequest) returns (GetStockResponse);
+}
+message CreateStockRequest {
+  int32 storeId = 1;
+  int32 productId = 2;
+  int32 quantity = 3;
+}
+message EditStockRequest {
+  int32 id = 1;
+  int32 storeId = 2;
+  int32 productId = 3;
+  int32 quantity = 4;
+}
+message GetStocksRequest {}
+message StockSummary {
+  int32 id = 1;
+  int32 storeId = 2;
+  int32 productId = 3;
+  int32 quantity = 4;
+}
+message GetStocksResponse {
+  repeated StockSummary stocks = 1;
+}
+message StockResponse{
+  bool success = 1;
+}
+message GetStockRequest {
+  int32 id = 1;
+}
+message GetStockResponse {
+  StockSummary stock = 1;
+}

@@ -63,13 +63,7 @@ message GetProductResponse{
 }
 
 message GetDetailProductRequest{
-    uint64 id = 1;
-    string tipo_usuario = 2;
-    int32 stock = 3;
-    string nombre = 4;
-    string talle = 5;
-    bytes foto = 6;           
-    string color = 7;
+    int32 id = 1;
 }
 
 message GetDetailProductResponse{

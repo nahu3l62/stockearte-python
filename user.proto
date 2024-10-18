@@ -36,7 +36,7 @@ message EditUserRequest {
   string password = 3;
   string firstName = 4;
   string lastName = 5;
-  string enabled = 6;
+  bool enabled = 6;
   int32 storeId = 7;
 }
 message GetUsersRequest {
@@ -58,6 +58,7 @@ message GetUsersResponse {
 }
 message UserResponse{
   bool success = 1;
+  int32 storeId = 2;
 }
 message GetUserRequest {
   int32 userId = 1;
