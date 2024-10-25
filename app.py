@@ -405,11 +405,34 @@ def get_detail_product():
             'talle': product.talle,
             'foto': product.foto,
             'color': product.color,
-            'stock': product.stock,  # Only keep one 'stock'
+            'stock': product.stock,  
             'codigo': product.codigo,
             # Convert RepeatedScalarContainer to a list
             'idTienda': list(product.idTienda)
         })
+    
+@app.route('/product/novedades', methods=['POST'])
+def get_novedades():
+    data = request.json
+
+    with grpc.insecure_channel('localhost:6565') as channel:
+        stub = product_pb2_grpc.ProductServiceStub(channel)
+
+        request_data = product_pb2.GetNovedadesRequest()
+
+        response = stub.GetNovedades(request_data)
+
+        products = [{
+            'id': product.id,
+            'nombre': product.nombre,
+            'talle': product.talle,
+            'foto': product.foto,
+            'color': product.color,
+            'stock': product.stock,
+            'codigo': product.codigo,
+        } for product in response.product]
+        
+        return jsonify({'products': products})
 
 ######################################## STORE ENDPOINTS ##############################################
 
@@ -675,6 +698,6 @@ def get_user():
         user = MessageToDict(response.user)
         return jsonify({'user': user})
 
-
+    
 if __name__ == '__main__':
     app.run(port=5000)

@@ -11,6 +11,7 @@ service ProductService {
     rpc EditProduct(Product) returns (EditProductResponse);
     rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
     rpc FilterProduct(FilterProductRequest) returns (FilterProductResponse);
+    rpc GetNovedades(GetNovedadesRequest) returns (FilterProductResponse);
     rpc GetDetailProduct(GetDetailProductRequest) returns (GetDetailProductResponse);
 }
 
@@ -47,6 +48,10 @@ message FilterProductRequest{
     string talle = 3;
     string color = 4;
     bool habilitado = 5;
+} 
+
+message GetNovedadesRequest{
+    string nombre = 1;
 } 
 
 message FilterProductResponse{
