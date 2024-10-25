@@ -16,15 +16,110 @@ import user_pb2_grpc
 import purchase_order_pb2
 import purchase_order_pb2_grpc
 from zeep import Client
+import requests
+import xml.etree.ElementTree as ET
 
 app = Flask(__name__)
 CORS(app)
 
-# Initialize the SOAP client
+## ----------------------------------------------SOAP-------------------------------------------------##
 SOAP_URL = 'http://localhost:8080/ws/purchaseOrderSoapService.wsdl'
 soap_client = Client(wsdl=SOAP_URL)
 
-##----------------------------------------------SOAP-------------------------------------------------##
+SOAP_ENDPOINT = "http://localhost:8080/ws/filters"
+
+## ----------------------------------------------SOAP-------------------------------------------------##
+#################################### FILTERS ENDPOINTS #########################################
+
+
+def send_soap_request(soap_body):
+    headers = {'Content-Type': 'text/xml'}
+    response = requests.post(SOAP_ENDPOINT, data=soap_body, headers=headers)
+    return response.content
+
+
+def parse_soap_response(response):
+    root = ET.fromstring(response)
+
+    namespace = {"tns": "http://stockearte-backend.com/"}
+
+    result = {}
+    if root.find('.//tns:createFiltersModelResponse', namespace) is not None:
+        result['id'] = root.find('.//tns:id', namespace).text
+    elif root.find('.//tns:updateFiltersModelResponse', namespace) is not None:
+        result['success'] = root.find('.//tns:success', namespace).text
+    elif root.find('.//tns:deleteFiltersModelResponse', namespace) is not None:
+        result['success'] = root.find('.//tns:success', namespace).text
+
+    return result
+
+
+@app.route('/filters/create', methods=['POST'])
+def create_filters_model():
+    data = request.json
+    soap_body = f"""
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://stockearte-backend.com/">
+        <soapenv:Header/>
+        <soapenv:Body>
+            <tns:createFiltersModelRequest>
+                <tns:productCode>{data['productCode']}</tns:productCode>
+                <tns:filtersName>{data['filtersName']}</tns:filtersName>
+                <tns:state>{data.get('state', '')}</tns:state>
+                <tns:idTienda>{data.get('idTienda', 0)}</tns:idTienda>
+                <tns:desde>{data.get('desde', '')}</tns:desde>
+                <tns:hasta>{data.get('hasta', '')}</tns:hasta>
+            </tns:createFiltersModelRequest>
+        </soapenv:Body>
+    </soapenv:Envelope>
+    """
+    response = send_soap_request(soap_body)
+    json_response = parse_soap_response(response)
+    return jsonify(json_response), 200
+
+
+@app.route('/filters/update', methods=['PUT'])
+def update_filters_model():
+    data = request.json
+    soap_body = f"""
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://stockearte-backend.com/">
+        <soapenv:Header/>
+        <soapenv:Body>
+            <tns:updateFiltersModelRequest>
+                <tns:id>{data['id']}</tns:id>
+                <tns:productCode>{data.get('productCode', '')}</tns:productCode>
+                <tns:filtersName>{data['filtersName']}</tns:filtersName>
+                <tns:state>{data.get('state', '')}</tns:state>
+                <tns:idTienda>{data.get('idTienda', 0)}</tns:idTienda>
+                <tns:desde>{data.get('desde', '')}</tns:desde>
+                <tns:hasta>{data.get('hasta', '')}</tns:hasta>
+            </tns:updateFiltersModelRequest>
+        </soapenv:Body>
+    </soapenv:Envelope>
+    """
+    response = send_soap_request(soap_body)
+    json_response = parse_soap_response(response)
+    return jsonify(json_response), 200
+
+
+@app.route('/filters/delete', methods=['DELETE'])
+def delete_filters_model():
+    data = request.json
+    soap_body = f"""
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://stockearte-backend.com/">
+        <soapenv:Header/>
+        <soapenv:Body>
+            <tns:deleteFiltersModelRequest>
+                <tns:id>{data['id']}</tns:id>
+            </tns:deleteFiltersModelRequest>
+        </soapenv:Body>
+    </soapenv:Envelope>
+    """
+    response = send_soap_request(soap_body)
+    json_response = parse_soap_response(response)
+    return jsonify(json_response), 200
+
+
+## ----------------------------------------------SOAP-------------------------------------------------##
 #################################### PURCHASE ORDER ENDPOINTS #########################################
 @app.route('/api/purchase-orders/findById', methods=['POST'])
 def get_purchase_orders():
@@ -66,7 +161,7 @@ def get_purchase_orders():
         return jsonify({'error': str(e)}), 500
 
 
-##----------------------------------------------GRPC-------------------------------------------------##
+## ----------------------------------------------GRPC-------------------------------------------------##
 #################################### PURCHASE ORDER ENDPOINTS #########################################
 
 @app.route('/purchase/create', methods=['POST'])
@@ -90,6 +185,7 @@ def create_purchase():
         )
         response = stub.CreatePurchaseOrder(request_data)
         return jsonify({'success': response.success})
+
 
 @app.route('/purchase/edit', methods=['POST'])
 def edit_purchase():
@@ -180,6 +276,7 @@ def findById_purchase():
 
 #################################### PRODUCT ENDPOINTS #########################################
 
+
 @app.route('/product/create', methods=['POST'])
 def create_product():
     data = request.json  # Espera un cuerpo en formato JSON
@@ -213,6 +310,7 @@ def create_product():
         # Retorna la respuesta del servidor gRPC
         return jsonify({'success': response.success})
 
+
 @app.route('/product/edit', methods=['POST'])
 def edit_product():
     data = request.json.get('requestBody')
@@ -232,6 +330,7 @@ def edit_product():
         response = stub.EditProduct(request_data)
         return jsonify({'success': response.success})
 
+
 @app.route('/product/delete', methods=['DELETE'])
 def delete_product():
     data = request.json
@@ -249,6 +348,7 @@ def delete_product():
 
         # Retorna la respuesta del servidor gRPC
         return jsonify({'success': response.success})
+
 
 @app.route('/product/filter', methods=['POST'])
 def filter_product():
@@ -278,10 +378,11 @@ def filter_product():
         } for product in response.product]
         return jsonify({'products': products})
 
+
 @app.route('/product/detail', methods=['POST'])
 def get_detail_product():
     data = request.json
-    if not data or 'id' not in data: #or 'tipo_usuario' not in data:
+    if not data or 'id' not in data:  # or 'tipo_usuario' not in data:
         return jsonify({'error': 'Datos inválidos. Se requieren id y tipo_usuario.'}), 400
     print(data)
     product_id = int(data['id'])
@@ -306,10 +407,12 @@ def get_detail_product():
             'color': product.color,
             'stock': product.stock,  # Only keep one 'stock'
             'codigo': product.codigo,
-            'idTienda': list(product.idTienda)  # Convert RepeatedScalarContainer to a list
+            # Convert RepeatedScalarContainer to a list
+            'idTienda': list(product.idTienda)
         })
 
 ######################################## STORE ENDPOINTS ##############################################
+
 
 @app.route('/store/create', methods=['POST'])
 def create_store():
@@ -330,6 +433,7 @@ def create_store():
         response = stub.CreateStore(request_data)
         return jsonify({'success': response.success})
 
+
 @app.route('/store/edit', methods=['POST'])
 def edit_store():
     data = request.json
@@ -343,13 +447,15 @@ def edit_store():
         province=data.get('province', ''),
         enabled=bool(int(data.get('enabled', '0'))),
         usersId=list(map(int, data.get('usersId', []))),  # Convert to integer
-        productsId=list(map(int, data.get('productsId', [])))  # Convert to integer
+        # Convert to integer
+        productsId=list(map(int, data.get('productsId', [])))
     )
 
     with grpc.insecure_channel('localhost:6565') as channel:
         stub = store_pb2_grpc.StoreServiceStub(channel)
         response = stub.EditStore(request_data)
         return jsonify({'success': response.success})
+
 
 @app.route('/store/get_stores', methods=['POST'])
 def get_stores():
@@ -365,6 +471,7 @@ def get_stores():
 
         stores = [MessageToDict(store) for store in response.stores]
         return jsonify({'stores': stores})
+
 
 @app.route('/store/get_store', methods=['POST'])
 def get_store():
@@ -387,6 +494,7 @@ def get_store():
 
 ######################################## STOCK ENDPOINTS ##############################################
 
+
 @app.route('/stock/create', methods=['POST'])
 def create_stock():
     data = request.json
@@ -403,6 +511,7 @@ def create_stock():
         stub = stock_pb2_grpc.StockServiceStub(channel)
         response = stub.CreateStock(request_data)
         return jsonify({'success': response.success})
+
 
 @app.route('/stock/edit', methods=['POST'])
 def edit_stock():
@@ -422,6 +531,7 @@ def edit_stock():
         response = stub.EditStock(request_data)
         return jsonify({'success': response.success})
 
+
 @app.route('/stock/get_stocks', methods=['POST'])
 def get_stocks():
     request_data = stock_pb2.GetStocksRequest()
@@ -435,6 +545,7 @@ def get_stocks():
                 stock_dict['quantity'] = 0
             stocks.append(stock_dict)
         return jsonify({'stocks': stocks})
+
 
 @app.route('/stock/get_stock', methods=['POST'])
 def get_stock():
@@ -453,6 +564,7 @@ def get_stock():
         return jsonify({'stock': stock})
 
 ######################################## USER ENDPOINTS ##############################################
+
 
 @app.route('/user/create', methods=['POST'])
 def create_user():
@@ -474,6 +586,7 @@ def create_user():
         response = stub.CreateUser(request_data)
         return jsonify({'success': response.success})
 
+
 @app.route('/user/authenticate', methods=['POST'])
 def authenticate_user():
     data = request.json
@@ -487,6 +600,7 @@ def authenticate_user():
         stub = user_pb2_grpc.UserServiceStub(channel)
         response = stub.AuthenticateUser(request_data)
         return jsonify({'success': response.success, 'storeId': response.storeId})
+
 
 @app.route('/user/asignUserToStore', methods=['POST'])
 def asign_user_to_store():
@@ -503,6 +617,7 @@ def asign_user_to_store():
         stub = user_pb2_grpc.UserServiceStub(channel)
         response = stub.AsignUserToStore(request_data)
         return jsonify({'success': response.success})
+
 
 @app.route('/user/edit', methods=['POST'])
 def edit_user():
@@ -525,6 +640,7 @@ def edit_user():
         response = stub.EditUser(request_data)
         return jsonify({'success': response.success})
 
+
 @app.route('/user/getUsers', methods=['POST'])
 def get_users():
     data = request.json
@@ -539,6 +655,7 @@ def get_users():
 
         users = [MessageToDict(user) for user in response.users]
         return jsonify({'users': users})
+
 
 @app.route('/user/getUser', methods=['POST'])
 def get_user():
@@ -557,6 +674,7 @@ def get_user():
 
         user = MessageToDict(response.user)
         return jsonify({'user': user})
+
 
 if __name__ == '__main__':
     app.run(port=5000)
