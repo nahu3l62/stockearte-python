@@ -5,7 +5,7 @@ import warnings
 
 import product_pb2 as product__pb2
 
-GRPC_GENERATED_VERSION = '1.66.2'
+GRPC_GENERATED_VERSION = '1.66.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -54,6 +54,11 @@ class ProductServiceStub(object):
                 request_serializer=product__pb2.FilterProductRequest.SerializeToString,
                 response_deserializer=product__pb2.FilterProductResponse.FromString,
                 _registered_method=True)
+        self.GetNovedades = channel.unary_unary(
+                '/com.unla.stockearte.ProductService/GetNovedades',
+                request_serializer=product__pb2.GetNovedadesRequest.SerializeToString,
+                response_deserializer=product__pb2.FilterProductResponse.FromString,
+                _registered_method=True)
         self.GetDetailProduct = channel.unary_unary(
                 '/com.unla.stockearte.ProductService/GetDetailProduct',
                 request_serializer=product__pb2.GetDetailProductRequest.SerializeToString,
@@ -88,6 +93,12 @@ class ProductServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetNovedades(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def GetDetailProduct(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -115,6 +126,11 @@ def add_ProductServiceServicer_to_server(servicer, server):
             'FilterProduct': grpc.unary_unary_rpc_method_handler(
                     servicer.FilterProduct,
                     request_deserializer=product__pb2.FilterProductRequest.FromString,
+                    response_serializer=product__pb2.FilterProductResponse.SerializeToString,
+            ),
+            'GetNovedades': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetNovedades,
+                    request_deserializer=product__pb2.GetNovedadesRequest.FromString,
                     response_serializer=product__pb2.FilterProductResponse.SerializeToString,
             ),
             'GetDetailProduct': grpc.unary_unary_rpc_method_handler(
@@ -230,6 +246,33 @@ class ProductService(object):
             target,
             '/com.unla.stockearte.ProductService/FilterProduct',
             product__pb2.FilterProductRequest.SerializeToString,
+            product__pb2.FilterProductResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetNovedades(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/com.unla.stockearte.ProductService/GetNovedades',
+            product__pb2.GetNovedadesRequest.SerializeToString,
             product__pb2.FilterProductResponse.FromString,
             options,
             channel_credentials,

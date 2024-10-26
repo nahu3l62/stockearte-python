@@ -176,12 +176,14 @@ def create_purchase():
         )
         for order in data.get('orders', [])
     ]
-    idTienda = int(data['idTienda'])
+    idTienda = int(data['id_tienda'])
+    observaciones = data['observaciones']
     with grpc.insecure_channel('localhost:6565') as channel:
         stub = purchase_order_pb2_grpc.PurchaseOrderServiceStub(channel)
         request_data = purchase_order_pb2.PurchaseOrder(
             orders=orders,
-            idTienda=idTienda
+            idTienda=idTienda,
+            observaciones=observaciones
         )
         response = stub.CreatePurchaseOrder(request_data)
         return jsonify({'success': response.success})
@@ -405,12 +407,13 @@ def get_detail_product():
             'talle': product.talle,
             'foto': product.foto,
             'color': product.color,
-            'stock': product.stock,  
+            'stock': product.stock,
             'codigo': product.codigo,
             # Convert RepeatedScalarContainer to a list
             'idTienda': list(product.idTienda)
         })
-    
+
+
 @app.route('/product/novedades', methods=['POST'])
 def get_novedades():
     data = request.json
@@ -431,7 +434,7 @@ def get_novedades():
             'stock': product.stock,
             'codigo': product.codigo,
         } for product in response.product]
-        
+
         return jsonify({'products': products})
 
 ######################################## STORE ENDPOINTS ##############################################
@@ -698,6 +701,6 @@ def get_user():
         user = MessageToDict(response.user)
         return jsonify({'user': user})
 
-    
+
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(port=5001)
