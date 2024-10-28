@@ -28,6 +28,276 @@ soap_client = Client(wsdl=SOAP_URL)
 
 SOAP_ENDPOINT = "http://localhost:8080/ws/filters"
 
+SOAP_ENDPOINT_CATALOGO = "http://localhost:8080/ws/catalogo"
+
+## ----------------------------------------------SOAP-------------------------------------------------##
+#################################### CATALOGO ENDPOINTS #########################################
+
+
+def send_soap_request_catalogo(soap_body):
+    headers = {'Content-Type': 'text/xml'}
+    response = requests.post(SOAP_ENDPOINT_CATALOGO, data=soap_body, headers=headers)
+    return response.content
+
+
+def parse_soap_response_catalogo(response):
+    try:
+        root = ET.fromstring(response)
+    except Exception as e:
+        print("Error al analizar la respuesta SOAP:", str(e))
+        return {'error': 'Error en la respuesta SOAP'}
+    
+    # Definir namespaces de forma más precisa
+    namespace = {
+        "tns": "http://stockearte-backend.com/",
+        "ns2": "http://stockearte-backend.com/",
+        "SOAP-ENV": "http://schemas.xmlsoap.org/soap/envelope/"
+    }
+    result = {}
+    # Buscar la respuesta en el nodo adecuado
+    response_element = root.find('.//ns2:getAllCatalogoResponse', namespace)
+    if response_element is not None:
+        catalogos = response_element.find('.//ns2:catalogos', namespace)
+        
+        if catalogos is not None:
+            result['catalogos'] = []
+            for catalogo in catalogos.findall('.//ns2:catalogo', namespace):
+                # Asegurarse de que los elementos existan antes de acceder a ellos
+                catalogo_data = {
+                    'id': catalogo.find('.//ns2:id', namespace).text if catalogo.find('.//ns2:id', namespace) is not None else None,
+                    'titulo': catalogo.find('.//ns2:titulo', namespace).text if catalogo.find('.//ns2:titulo', namespace) is not None else None,
+                    'tiendaID': catalogo.find('.//ns2:tiendaID', namespace).text if catalogo.find('.//ns2:tiendaID', namespace) is not None else None,
+                    'productos': []
+                }
+                
+                # Agrega productos si existen
+                productos = catalogo.find('.//ns2:productos', namespace)
+                if productos is not None:
+                    for producto in productos.findall('.//ns2:producto', namespace):
+                        producto_data = {
+                            'id': producto.find('.//ns2:id', namespace).text if producto.find('.//ns2:id', namespace) is not None else None,
+                            'nombre': producto.find('.//ns2:nombre', namespace).text if producto.find('.//ns2:nombre', namespace) is not None else None,
+                            'codigo': producto.find('.//ns2:codigo', namespace).text if producto.find('.//ns2:codigo', namespace) is not None else None,
+                            'talle': producto.find('.//ns2:talle', namespace).text if producto.find('.//ns2:talle', namespace) is not None else None,
+                            'color': producto.find('.//ns2:color', namespace).text if producto.find('.//ns2:color', namespace) is not None else None,
+                            'foto': producto.find('.//ns2:foto', namespace).text if producto.find('.//ns2:foto', namespace) is not None else None,
+                        }
+                        catalogo_data['productos'].append(producto_data)
+                
+                result['catalogos'].append(catalogo_data)
+
+        else:
+            result['error'] = "No se encontraron catálogos en la respuesta."
+    
+    else:
+        result['error'] = "No se encontró la respuesta adecuada."
+
+    return result
+
+def parse_soap_response_catalogo_by_id(response):
+    try:
+        root = ET.fromstring(response)
+    except Exception as e:
+        print("Error al analizar la respuesta SOAP:", str(e))
+        return {'error': 'Error en la respuesta SOAP'}
+    
+    namespace = {
+        "tns": "http://stockearte-backend.com/",
+        "ns2": "http://stockearte-backend.com/",
+        "SOAP-ENV": "http://schemas.xmlsoap.org/soap/envelope/"
+    }
+    
+    result = {}
+    response_element = root.find('.//ns2:getCatalogoByIdResponse', namespace)
+    
+    if response_element is not None:
+        catalogo = response_element.find('.//ns2:catalogo', namespace)
+        
+        if catalogo is not None:
+            # Extraer datos del catálogo
+            result['catalogo'] = {
+                'id': catalogo.find('.//ns2:id', namespace).text if catalogo.find('.//ns2:id', namespace) is not None else None,
+                'titulo': catalogo.find('.//ns2:titulo', namespace).text if catalogo.find('.//ns2:titulo', namespace) is not None else None,
+                'tiendaID': catalogo.find('.//ns2:tiendaID', namespace).text if catalogo.find('.//ns2:tiendaID', namespace) is not None else None,
+                'productos': []
+            }
+            
+            # Extraer productos si existen
+            productos = catalogo.find('.//ns2:productos', namespace)
+            if productos is not None:
+                for producto in productos.findall('.//ns2:producto', namespace):
+                    producto_data = {
+                        'id': producto.find('.//ns2:id', namespace).text if producto.find('.//ns2:id', namespace) is not None else None,
+                        'nombre': producto.find('.//ns2:nombre', namespace).text if producto.find('.//ns2:nombre', namespace) is not None else None,
+                        'codigo': producto.find('.//ns2:codigo', namespace).text if producto.find('.//ns2:codigo', namespace) is not None else None,
+                        'talle': producto.find('.//ns2:talle', namespace).text if producto.find('.//ns2:talle', namespace) is not None else None,
+                        'color': producto.find('.//ns2:color', namespace).text if producto.find('.//ns2:color', namespace) is not None else None,
+                        'foto': producto.find('.//ns2:foto', namespace).text if producto.find('.//ns2:foto', namespace) is not None else None,
+                    }
+                    result['catalogo']['productos'].append(producto_data)
+        else:
+            result['error'] = "No se encontró el catálogo solicitado."
+    else:
+        result['error'] = "No se encontró la respuesta adecuada."
+    
+    return result
+
+@app.route('/catalogos/<id>', methods=['GET'])
+def get_catalogo_by_id(id):
+    soap_body = f'''
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                      xmlns:tns="http://stockearte-backend.com/">
+        <soapenv:Header/>
+        <soapenv:Body>
+            <tns:getCatalogoByIdRequest>
+                <tns:id>{id}</tns:id>
+            </tns:getCatalogoByIdRequest>
+        </soapenv:Body>
+    </soapenv:Envelope>
+    '''
+
+    try:
+        response = send_soap_request_catalogo(soap_body)
+        catalogo = parse_soap_response_catalogo_by_id(response)
+        
+        if 'error' in catalogo:
+            return jsonify(catalogo), 404
+            
+        return jsonify(catalogo), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/catalogos', methods=['POST'])
+def get_all_catalogos():
+
+    soap_body = '''
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                      xmlns:tns="http://stockearte-backend.com/">
+        <soapenv:Header/>
+        <soapenv:Body>
+            <tns:getAllCatalogoRequest/>
+        </soapenv:Body>
+    </soapenv:Envelope>
+    '''
+
+    try:
+        response = send_soap_request_catalogo(soap_body)
+        catalogos = parse_soap_response_catalogo(response)
+        return jsonify(catalogos), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/catalogos/create', methods=['POST'])
+def create_catalogo():
+    data = request.json
+    
+    productos_xml = ""
+    for producto in data.get('productos', []):
+        productos_xml += f"""
+        <tns:producto>
+            <tns:nombre>{producto.get('nombre')}</tns:nombre>
+            <tns:codigo>{producto.get('codigo')}</tns:codigo>
+            <tns:talle>{producto.get('talle')}</tns:talle>
+            <tns:color>{producto.get('color')}</tns:color>
+            <tns:foto>{producto.get('foto')}</tns:foto>
+        </tns:producto>
+        """
+
+    soap_body = f"""
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://stockearte-backend.com/">
+        <soapenv:Header/>
+        <soapenv:Body>
+            <tns:createCatalogoRequest>
+                <tns:titulo>{data['titulo']}</tns:titulo>
+                <tns:tiendaID>{data['tiendaID']}</tns:tiendaID>
+                <tns:productos>
+                    {productos_xml}
+                </tns:productos>
+            </tns:createCatalogoRequest>
+        </soapenv:Body>
+    </soapenv:Envelope>
+    """
+
+    try:
+        response = send_soap_request_catalogo(soap_body)
+        json_response = parse_soap_response_catalogo(response)
+        return jsonify(json_response), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/catalogos/update', methods=['POST'])
+def update_catalogo():
+    data = request.json
+
+    if 'titulo' not in data or 'tiendaID' not in data or 'productos' not in data:
+        return jsonify({'error': 'Faltan campos requeridos en la solicitud'}), 400
+
+    try:
+        soap_body = f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://stockearte-backend.com/">
+            <soapenv:Header/>
+            <soapenv:Body>
+                <tns:updateCatalogoRequest>
+                    <tns:titulo>{data['titulo']}</tns:titulo>
+                    <tns:tiendaID>{data['tiendaID']}</tns:tiendaID>
+                    <tns:productos>
+        """
+        
+        for producto in data['productos']:
+            soap_body += f"""
+                        <tns:producto>
+                            <tns:id>{producto['id']}</tns:id>
+                            <tns:nombre>{producto['nombre']}</tns:nombre>
+                            <tns:codigo>{producto['codigo']}</tns:codigo>
+                            <tns:talle>{producto['talle']}</tns:talle>
+                            <tns:color>{producto['color']}</tns:color>
+                            <tns:foto>{producto['foto']}</tns:foto>
+                        </tns:producto>
+            """
+        
+        soap_body += """
+                    </tns:productos>
+                </tns:updateCatalogoRequest>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
+        response = send_soap_request_catalogo(soap_body)
+        json_response = parse_soap_response_catalogo(response)
+
+        if 'error' in json_response:
+            return jsonify(json_response), 500
+
+        return jsonify(json_response), 200
+
+    except Exception as e:
+        print(f"Error al realizar la solicitud SOAP: {str(e)}")
+        return jsonify({'error': 'Error al realizar la solicitud SOAP'}), 500
+
+
+@app.route('/catalogos/delete', methods=['POST'])
+def delete_catalogo():
+    data = request.json
+    
+    soap_body = f"""
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://stockearte-backend.com/">
+        <soapenv:Header/>
+        <soapenv:Body>
+            <tns:deleteCatalogoRequest>
+                <tns:id>{data['id']}</tns:id>
+            </tns:deleteCatalogoRequest>
+        </soapenv:Body>
+    </soapenv:Envelope>
+    """
+    
+    response = send_soap_request_catalogo(soap_body)
+    json_response = parse_soap_response_catalogo(response)
+    return jsonify(json_response), 200
+
+
+
+
 ## ----------------------------------------------SOAP-------------------------------------------------##
 #################################### FILTERS ENDPOINTS #########################################
 
@@ -117,7 +387,6 @@ def delete_filters_model():
     response = send_soap_request(soap_body)
     json_response = parse_soap_response(response)
     return jsonify(json_response), 200
-
 
 ## ----------------------------------------------SOAP-------------------------------------------------##
 #################################### PURCHASE ORDER ENDPOINTS #########################################
