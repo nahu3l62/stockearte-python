@@ -83,7 +83,7 @@ def create_filters_model():
                 <tns:productCode>{data['codigoProducto']}</tns:productCode>
                 <tns:filtersName>{data['filtroNombre']}</tns:filtersName>
                 <tns:state>{data.get('estado', '')}</tns:state>
-                <tns:idTienda>{data.get('tienda', 0)}</tns:idTienda>
+                <tns:idTienda>{data.get('idTienda', 0)}</tns:idTienda>
                 <tns:desde>{data.get('fechaDesde', '')}</tns:desde>
                 <tns:hasta>{data.get('fechaHasta', '')}</tns:hasta>
             </tns:createFiltersModelRequest>
@@ -149,8 +149,8 @@ def get_filters():
     </soapenv:Envelope>
     """
     response = send_soap_request(soap_body)
+    # print(response)
     json_response = parse_soap_response(response)
-    print(json_response)
     return jsonify(json_response), 200
 
 
