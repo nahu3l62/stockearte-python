@@ -26,6 +26,9 @@ CORS(app)
 SOAP_URL = 'http://localhost:8080/ws/purchaseOrderSoapService.wsdl'
 soap_client = Client(wsdl=SOAP_URL)
 
+# WSDL_URL_FILTERS = 'http://localhost:8080/ws/FiltersSoapService.wsdl'
+# client = Client(WSDL_URL_FILTERS)
+
 SOAP_ENDPOINT = "http://localhost:8080/ws/filters"
 
 ## ----------------------------------------------SOAP-------------------------------------------------##
@@ -50,11 +53,26 @@ def parse_soap_response(response):
         result['success'] = root.find('.//tns:success', namespace).text
     elif root.find('.//tns:deleteFiltersModelResponse', namespace) is not None:
         result['success'] = root.find('.//tns:success', namespace).text
+    elif root.find('.//tns:getFiltersResponse', namespace) is not None:
+        filters = []
+        for filter_elem in root.findall('.//tns:filters', namespace):
+            filter_data = {
+                'id': filter_elem.find('tns:id', namespace).text,
+                'productCode': filter_elem.find('tns:productCode', namespace).text,
+                'filtersName': filter_elem.find('tns:filtersName', namespace).text,
+                'state': filter_elem.find('tns:state', namespace).text,
+                'idTienda': filter_elem.find('tns:idTienda', namespace).text,
+                'desde': filter_elem.find('tns:desde', namespace).text,
+                'hasta': filter_elem.find('tns:hasta', namespace).text,
+                'habilitado': filter_elem.find('tns:habilitado', namespace).text
+            }
+            filters.append(filter_data)
+        result['filters'] = filters
 
     return result
 
 
-@app.route('/filters/create', methods=['POST'])
+@app.route('/api/filters/save', methods=['POST'])
 def create_filters_model():
     data = request.json
     soap_body = f"""
@@ -62,12 +80,12 @@ def create_filters_model():
         <soapenv:Header/>
         <soapenv:Body>
             <tns:createFiltersModelRequest>
-                <tns:productCode>{data['productCode']}</tns:productCode>
-                <tns:filtersName>{data['filtersName']}</tns:filtersName>
-                <tns:state>{data.get('state', '')}</tns:state>
-                <tns:idTienda>{data.get('idTienda', 0)}</tns:idTienda>
-                <tns:desde>{data.get('desde', '')}</tns:desde>
-                <tns:hasta>{data.get('hasta', '')}</tns:hasta>
+                <tns:productCode>{data['codigoProducto']}</tns:productCode>
+                <tns:filtersName>{data['filtroNombre']}</tns:filtersName>
+                <tns:state>{data.get('estado', '')}</tns:state>
+                <tns:idTienda>{data.get('tienda', 0)}</tns:idTienda>
+                <tns:desde>{data.get('fechaDesde', '')}</tns:desde>
+                <tns:hasta>{data.get('fechaHasta', '')}</tns:hasta>
             </tns:createFiltersModelRequest>
         </soapenv:Body>
     </soapenv:Envelope>
@@ -77,7 +95,8 @@ def create_filters_model():
     return jsonify(json_response), 200
 
 
-@app.route('/filters/update', methods=['PUT'])
+
+@app.route('/api/filters/update', methods=['PUT'])
 def update_filters_model():
     data = request.json
     soap_body = f"""
@@ -101,7 +120,7 @@ def update_filters_model():
     return jsonify(json_response), 200
 
 
-@app.route('/filters/delete', methods=['DELETE'])
+@app.route('/api/filters/delete', methods=['POST'])
 def delete_filters_model():
     data = request.json
     soap_body = f"""
@@ -114,9 +133,48 @@ def delete_filters_model():
         </soapenv:Body>
     </soapenv:Envelope>
     """
+    print({data['id']})
     response = send_soap_request(soap_body)
     json_response = parse_soap_response(response)
     return jsonify(json_response), 200
+
+
+@app.route('/api/filters/get', methods=['GET'])
+def get_filters():
+    soap_body = f"""
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://stockearte-backend.com/">
+        <soapenv:Header/>
+        <soapenv:Body>
+            <tns:getFiltersRequest/>
+        </soapenv:Body>
+    </soapenv:Envelope>
+    """
+    response = send_soap_request(soap_body)
+    json_response = parse_soap_response(response)
+    print(json_response)
+    return jsonify(json_response), 200
+
+
+def parse_get_filters_response(response_content):
+    root = ET.fromstring(response_content)
+
+    namespaces = {'soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',
+                  'tns': 'http://stockearte-backend.com/'}
+
+    filters = []
+    for filter_elem in root.findall('.//tns:filters', namespaces):
+        filter_data = {
+            'productCode': filter_elem.find('tns:productCode', namespaces).text,
+            'filtersName': filter_elem.find('tns:filtersName', namespaces).text,
+            'state': filter_elem.find('tns:state', namespaces).text,
+            'idTienda': filter_elem.find('tns:idTienda', namespaces).text,
+            'desde': filter_elem.find('tns:desde', namespaces).text,
+            'hasta': filter_elem.find('tns:hasta', namespaces).text,
+            'habilitado': filter_elem.find('tns:habilitado', namespaces).text
+        }
+        filters.append(filter_data)
+
+    return jsonify(filters)
 
 
 ## ----------------------------------------------SOAP-------------------------------------------------##
@@ -703,4 +761,4 @@ def get_user():
 
 
 if __name__ == '__main__':
-    app.run(port=5001)
+    app.run(port=5000)
