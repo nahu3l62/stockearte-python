@@ -95,7 +95,6 @@ def create_filters_model():
     return jsonify(json_response), 200
 
 
-
 @app.route('/api/filters/update', methods=['PUT'])
 def update_filters_model():
     data = request.json
@@ -225,6 +224,7 @@ def get_purchase_orders():
 @app.route('/purchase/create', methods=['POST'])
 def create_purchase():
     data = request.json
+    print(data)
     orders = [
         purchase_order_pb2.OrderDetail(
             codigo=order['codigo'],
@@ -235,13 +235,13 @@ def create_purchase():
         for order in data.get('orders', [])
     ]
     idTienda = int(data['id_tienda'])
-    observaciones = data['observaciones']
+    # observaciones = data['observaciones']
     with grpc.insecure_channel('localhost:6565') as channel:
         stub = purchase_order_pb2_grpc.PurchaseOrderServiceStub(channel)
         request_data = purchase_order_pb2.PurchaseOrder(
             orders=orders,
-            idTienda=idTienda,
-            observaciones=observaciones
+            idTienda=idTienda
+            # observaciones=observaciones
         )
         response = stub.CreatePurchaseOrder(request_data)
         return jsonify({'success': response.success})
@@ -253,7 +253,7 @@ def edit_purchase():
 
     id = data['id']
     estado = data['estado']
-    observaciones = data['observaciones']
+    # observaciones = data['observaciones']
     orden_despacho = data['orden_despacho']
     idTienda = data['idTienda']
 
@@ -265,7 +265,7 @@ def edit_purchase():
         request_data = purchase_order_pb2.PurchaseOrder(
             id=id,
             estado=estado,
-            observaciones=observaciones,
+            # observaciones=observaciones,
             orden_despacho=orden_despacho,
             idTienda=idTienda
         )
